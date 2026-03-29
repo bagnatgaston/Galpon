@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0a0a0f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Galpón" />
+<title>Control de Vencimientos — Galpón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #14141c;
+  --surface2: #1e1e2a;
+  --surface3: #28283a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text2: #8888aa;
+  --text3: #55556a;
+  --red: #ff4d4d;
+  --red-bg: rgba(255,77,77,0.12);
+  --red-border: rgba(255,77,77,0.3);
+  --amber: #ffaa00;
+  --amber-bg: rgba(255,170,0,0.12);
+  --amber-border: rgba(255,170,0,0.3);
+  --green: #00cc88;
+  --green-bg: rgba(0,204,136,0.12);
+  --green-border: rgba(0,204,136,0.3);
+  --blue: #4d8fff;
+  --blue-bg: rgba(77,143,255,0.12);
+  --font: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r: 10px;
+  --r-lg: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; overflow-x: hidden; }
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg);
+}
+.login-logo {
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--text3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+}
+.login-box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+}
+.login-box h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+.login-box p { font-size: 13px; color: var(--text2); margin-bottom: 1.75rem; }
+
+.login-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+}
+.role-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+.role-btn:hover { border-color: var(--border2); background: var(--surface3); }
+.role-btn.selected { border-color: var(--blue); background: var(--blue-bg); }
+.role-icon { font-size: 20px; margin-bottom: 4px; }
+.role-label { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+
+.field { margin-bottom: 1rem; }
+.field label { font-size: 12px; color: var(--text2); font-family: var(--mono); display: block; margin-bottom: 6px; letter-spacing: 0.05em; }
+.field input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 0.65rem 0.9rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus { border-color: var(--blue); }
+.login-error { font-size: 12px; color: var(--red); font-family: var(--mono); margin-bottom: 0.75rem; display: none; }
+
+.btn-primary {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--r);
+  padding: 0.75rem;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:active { opacity: 0.75; }
+
+/* ── APP SHELL ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+.topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-role-badge {
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  text-transform: uppercase;
+}
+.nav-logout {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  background: none;
+  transition: all 0.15s;
+}
+.nav-logout:hover { border-color: var(--border); color: var(--text2); }
+
+.tab-bar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+.main { flex: 1; padding: 1rem; max-width: 900px; margin: 0 auto; width: 100%; }
+
+/* ── STATS BAR ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 1.25rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.75rem;
+}
+.stat-card.red { border-color: var(--red-border); background: var(--red-bg); }
+.stat-card.amber { border-color: var(--amber-border); background: var(--amber-bg); }
+.stat-card.green { border-color: var(--green-border); background: var(--green-bg); }
+.stat-label { font-size: 10px; font-family: var(--mono); color: var(--text2); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-size: 24px; font-weight: 700; }
+.stat-card.red .stat-val { color: var(--red); }
+.stat-card.amber .stat-val { color: var(--amber); }
+.stat-card.green .stat-val { color: var(--green); }
+
+/* ── FILTERS ── */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.filters input, .filters select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 0.55rem 0.8rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filters input { flex: 1; min-width: 160px; }
+.filters input:focus, .filters select:focus { border-color: var(--blue); }
+.filters select option { background: var(--surface); }
+
+/* ── RUBRO SECTION ── */
+.rubro-section { margin-bottom: 1rem; }
+.rubro-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.65rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background 0.1s;
+  margin-bottom: 6px;
+}
+.rubro-header:hover { background: var(--surface2); }
+.rubro-name { font-size: 14px; font-weight: 600; flex: 1; }
+.rubro-count { font-size: 11px; font-family: var(--mono); color: var(--text3); }
+.status-pill {
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.pill-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.pill-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.chevron { color: var(--text3); font-size: 11px; transition: transform 0.2s; }
+.chevron.open { transform: rotate(180deg); }
+
+.pallet-list { display: flex; flex-direction: column; gap: 5px; padding-left: 0; overflow: hidden; transition: max-height 0.25s ease; }
+
+.pallet-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.65rem 0.9rem;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+.pallet-row.red { border-left-color: var(--red); }
+.pallet-row.amber { border-left-color: var(--amber); }
+.pallet-row.green { border-left-color: var(--green); }
+.pallet-row:hover { background: var(--surface3); }
+.pallet-prod { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pallet-meta { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 2px; }
+.pallet-pos { font-size: 12px; font-family: var(--mono); color: var(--text2); }
+.pallet-dias { font-size: 12px; font-family: var(--mono); font-weight: 500; text-align: right; }
+.pallet-dias.red { color: var(--red); }
+.pallet-dias.amber { color: var(--amber); }
+.pallet-dias.green { color: var(--green); }
+.del-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text3);
+  font-size: 12px;
+  padding: 3px 7px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all 0.15s;
+}
+.del-btn:hover { border-color: var(--red-border); color: var(--red); }
+
+.empty-msg { color: var(--text3); font-family: var(--mono); font-size: 13px; padding: 2rem 0; text-align: center; }
+
+/* ── ESCANEAR TAB ── */
+.scan-section { max-width: 480px; margin: 0 auto; }
+.scanner-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  position: relative;
+}
+#video-preview {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.scan-frame {
+  width: 200px;
+  height: 100px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  position: relative;
+}
+.scan-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--green);
+  animation: scanline 1.8s ease-in-out infinite;
+  border-radius: 2px;
+}
+@keyframes scanline {
+  0% { top: 0; opacity: 1; }
+  100% { top: 100%; opacity: 0.3; }
+}
+.scan-placeholder {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+.scan-placeholder svg { opacity: 0.3; }
+.btn-scan {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 0.75rem;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-scan:hover { background: var(--surface3); border-color: var(--border2); }
+.btn-scan.active { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+}
+.form-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-group { margin-bottom: 0.85rem; }
+.form-group label { font-size: 11px; font-family: var(--mono); color: var(--text2); display: block; margin-bottom: 5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 0.6rem 0.8rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--blue); }
+.form-group input.prefilled { border-color: var(--green); background: var(--green-bg); }
+.btn-submit {
+  width: 100%;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: var(--r);
+  padding: 0.8rem;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 0.5rem;
+}
+.btn-submit:hover { opacity: 0.88; }
+.btn-submit:active { opacity: 0.75; }
+.success-flash {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: var(--r);
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 0.75rem;
+  margin-bottom: 0.85rem;
+  display: none;
+  text-align: center;
+}
+
+/* ── HISTORIAL TAB ── */
+.hist-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 5px;
+}
+.hist-prod { font-size: 13px; font-weight: 500; }
+.hist-meta { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 2px; }
+.hist-time { font-size: 11px; font-family: var(--mono); color: var(--text3); text-align: right; }
+.hist-action { font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 100px; }
+.hist-add { background: var(--green-bg); color: var(--green); }
+.hist-del { background: var(--red-bg); color: var(--red); }
+
+/* ── FIREBASE STATUS ── */
+.firebase-notice {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--r);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--amber);
+  line-height: 1.6;
+}
+.firebase-notice strong { color: var(--amber); }
+.firebase-notice a { color: var(--amber); }
+.firebase-notice code {
+  display: block;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin: 6px 0;
+  font-size: 11px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* ── CONFIG PANEL ── */
+.config-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.config-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 1rem; font-family: var(--mono); color: var(--text2); text-transform: uppercase; letter-spacing: 0.1em; }
+.config-row { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.config-row:last-child { border-bottom: none; }
+.config-val { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+
+@media (max-width: 520px) {
+  .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pallet-row { grid-template-columns: 1fr auto; }
+  .pallet-pos, .pallet-dias { display: none; }
+  .pallet-dias { display: block; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+  <div class="login-logo">⬡ Sistema de Galpón</div>
+  <div class="login-box">
+    <h1>Control de<br>Vencimientos</h1>
+    <p>Seleccioná tu rol e ingresá la contraseña</p>
+
+    <div class="login-role-grid">
+      <div class="role-btn selected" onclick="selectRole('operario', this)">
+        <div class="role-icon">📦</div>
+        <div class="role-label">Operario</div>
+      </div>
+      <div class="role-btn" onclick="selectRole('supervisor', this)">
+        <div class="role-icon">📋</div>
+        <div class="role-label">Supervisor</div>
+      </div>
+      <div class="role-btn" onclick="selectRole('gerencia', this)">
+        <div class="role-icon">📊</div>
+        <div class="role-label">Gerencia</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+    <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <nav class="topnav">
+    <div class="nav-brand">⬡ Galpón</div>
+    <div class="nav-right">
+      <div class="nav-role-badge" id="role-badge">—</div>
+      <button class="nav-logout" onclick="doLogout()">salir</button>
+    </div>
+  </nav>
+
+  <div class="tab-bar" id="tab-bar"></div>
+
+  <div class="main" id="main-content"></div>
+</div>
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ─── CONFIGURACIÓN FIREBASE ───────────────────────────────────────────────
+// ⚠️  REEMPLAZÁ ESTOS VALORES con los de tu proyecto Firebase
+// Instrucciones: https://console.firebase.google.com → Crear proyecto → Agregar app web
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDRx_E6gtKFF6nDngybssEH5QUf8CNCDfE",
+  authDomain: "galpon-digital.firebaseapp.com",
+  projectId: "galpon-digital",
+  storageBucket: "galpon-digital.firebasestorage.app",
+  messagingSenderId: "208222251218",
+  appId: "1:208222251218:web:248c39b45517d5eed8650b"
+};
+
+// ─── CONTRASEÑAS ──────────────────────────────────────────────────────────
+const PASSWORDS = {
+  operario:   "galpon2024",
+  supervisor: "super2024",
+  gerencia:   "gerencia2024"
+};
+
+// ─── UMBRALES DE ALERTA (días) ───────────────────────────────────────────
+const CRITICO = 15;
+const PROXIMO = 45;
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────
+let db = null;
+let firebaseOk = false;
+let currentRole = 'operario';
+let activeTab = 'dashboard';
+let pallets = [];
+let historial = [];
+let scannerActive = false;
+let barcodeReader = null;
+
+// ─── DEMO DATA (se usa si Firebase no está configurado) ───────────────────
+const DEMO_PALLETS = [
+  { id:'d1', codigo:'7790001234001', producto:'Alfajor Triple Chocolate', rubro:'65 — Alfajores', posicion:'65-A-01', fecha:'2025-04-05', cantidad:240, ts: Date.now()-86400000*2 },
+  { id:'d2', codigo:'7790001234002', producto:'Alfajor Blanco Vainilla',   rubro:'65 — Alfajores', posicion:'65-A-02', fecha:'2025-04-20', cantidad:180, ts: Date.now()-86400000*3 },
+  { id:'d3', codigo:'7790001234003', producto:'Galletitas Surtidas',        rubro:'42 — Galletitas', posicion:'42-B-01', fecha:'2025-05-10', cantidad:320, ts: Date.now()-86400000 },
+  { id:'d4', codigo:'7790001234004', producto:'Galletitas Rellenas Fresa',  rubro:'42 — Galletitas', posicion:'42-B-02', fecha:'2025-06-15', cantidad:200, ts: Date.now() },
+  { id:'d5', codigo:'7790001234005', producto:'Dulce de Leche Repostero',   rubro:'31 — Lácteos',   posicion:'31-C-01', fecha:'2025-04-08', cantidad:96,  ts: Date.now()-86400000*5 },
+  { id:'d6', codigo:'7790001234006', producto:'Leche Entera Larga Vida',    rubro:'31 — Lácteos',   posicion:'31-C-02', fecha:'2025-07-01', cantidad:480, ts: Date.now()-86400000*4 },
+  { id:'d7', codigo:'7790001234007', producto:'Yerba Mate Premium 500g',    rubro:'18 — Yerba y Té',posicion:'18-D-01', fecha:'2025-08-20', cantidad:600, ts: Date.now()-86400000*1 },
+  { id:'d8', codigo:'7790001234008', producto:'Arroz Largo Fino 1kg',       rubro:'11 — Secos',     posicion:'11-E-01', fecha:'2026-01-10', cantidad:900, ts: Date.now()-86400000*6 },
+  { id:'d9', codigo:'7790001234010', producto:'Alfajor Blanco Limón',       rubro:'65 — Alfajores', posicion:'65-A-03', fecha:'2025-04-02', cantidad:160, ts: Date.now()-86400000*7 },
+];
+
+// ─── FIREBASE INIT ────────────────────────────────────────────────────────
+function initFirebase() {
+  try {
+    if (FIREBASE_CONFIG.apiKey === 'TU_API_KEY') {
+      pallets = DEMO_PALLETS;
+      renderCurrentTab();
+      return;
+    }
+    const app = initializeApp(FIREBASE_CONFIG);
+    db = getFirestore(app);
+    firebaseOk = true;
+    subscribeFirestore();
+  } catch(e) {
+    console.error('Firebase error', e);
+    pallets = DEMO_PALLETS;
+    renderCurrentTab();
+  }
+}
+
+function subscribeFirestore() {
+  const q = query(collection(db, 'pallets'), orderBy('ts', 'desc'));
+  onSnapshot(q, snap => {
+    pallets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCurrentTab();
+  });
+  const qh = query(collection(db, 'historial'), orderBy('ts', 'desc'));
+  onSnapshot(qh, snap => {
+    historial = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (activeTab === 'historial') renderCurrentTab();
+  });
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────
+window.selectRole = function(role, el) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+};
+
+window.doLogin = function() {
+  const pw = document.getElementById('pw-input').value;
+  const err = document.getElementById('login-error');
+  if (pw === PASSWORDS[currentRole]) {
+    err.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('role-badge').textContent = currentRole;
+    buildTabs();
+    initFirebase();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+};
+
+window.doLogout = function() {
+  stopScanner();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+  pallets = [];
+  historial = [];
+};
+
+// ─── TABS ─────────────────────────────────────────────────────────────────
+function buildTabs() {
+  const tabs = { operario: ['dashboard','escanear'], supervisor: ['dashboard','escanear','historial','config'], gerencia: ['dashboard','historial'] };
+  const labels = { dashboard:'Dashboard', escanear:'Escanear', historial:'Historial', config:'Config' };
+  const bar = document.getElementById('tab-bar');
+  bar.innerHTML = (tabs[currentRole] || ['dashboard']).map(t =>
+    `<div class="tab ${t===activeTab?'active':''}" onclick="switchTab('${t}')">${labels[t]}</div>`
+  ).join('');
+}
+
+window.switchTab = function(tab) {
+  if (tab !== 'escanear') stopScanner();
+  activeTab = tab;
+  buildTabs();
+  renderCurrentTab();
+};
+
+function renderCurrentTab() {
+  const c = document.getElementById('main-content');
+  if (activeTab === 'dashboard') c.innerHTML = renderDashboard();
+  else if (activeTab === 'escanear') c.innerHTML = renderEscanear();
+  else if (activeTab === 'historial') c.innerHTML = renderHistorial();
+  else if (activeTab === 'config') c.innerHTML = renderConfig();
+
+  if (activeTab === 'escanear') attachScannerEvents();
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function hoy() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function diasHasta(fechaStr) {
+  const f = new Date(fechaStr); f.setHours(0,0,0,0);
+  return Math.round((f - hoy()) / 86400000);
+}
+function estado(dias) { return dias < CRITICO ? 'red' : dias < PROXIMO ? 'amber' : 'green'; }
+function labelDias(dias) {
+  if (dias < 0) return `Venció hace ${Math.abs(dias)}d`;
+  if (dias === 0) return 'Vence HOY';
+  return `${dias}d`;
+}
+function labelPill(dias) {
+  if (dias < 0) return 'Vencido';
+  if (dias < CRITICO) return 'Crítico';
+  if (dias < PROXIMO) return 'Próximo';
+  return 'OK';
+}
+function pillClass(st) { return `status-pill pill-${st}`; }
+function formatTs(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit'}) + ' ' + d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+function allRubros() { return [...new Set(pallets.map(p => p.rubro))].sort(); }
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const total = pallets.length;
+  const criticos = pallets.filter(p => estado(diasHasta(p.fecha)) === 'red').length;
+  const proximos = pallets.filter(p => estado(diasHasta(p.fecha)) === 'amber').length;
+  const ok = pallets.filter(p => estado(diasHasta(p.fecha)) === 'green').length;
+
+  const search = ''; // managed inline
+  const rubros = allRubros();
+
+  const firebaseMsg = !firebaseOk && FIREBASE_CONFIG.apiKey === 'TU_API_KEY' ? `
+    <div class="firebase-notice">
+      <strong>⚠ Modo demo — datos locales</strong><br>
+      Para activar la base de datos en la nube, configurá Firebase:<br>
+      1. Creá un proyecto en <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>
+      2. Agregá una app web → copiá la config<br>
+      3. Reemplazá los valores en la sección <code>FIREBASE_CONFIG</code> del HTML<br>
+      4. En Firestore → Reglas → poné <code>allow read, write: if true;</code> para empezar
+    </div>` : '';
+
+  let rubroHtml = '';
+  const sorted = [...rubros].sort((a,b) => {
+    const minA = Math.min(...pallets.filter(p=>p.rubro===a).map(p=>diasHasta(p.fecha)));
+    const minB = Math.min(...pallets.filter(p=>p.rubro===b).map(p=>diasHasta(p.fecha)));
+    return minA - minB;
+  });
+
+  sorted.forEach(rubro => {
+    const ps = pallets.filter(p => p.rubro === rubro).sort((a,b) => new Date(a.fecha)-new Date(b.fecha));
+    if (!ps.length) return;
+    const minD = Math.min(...ps.map(p => diasHasta(p.fecha)));
+    const st = estado(minD);
+    const safeId = 'r_' + rubro.replace(/[^a-z0-9]/gi,'_');
+
+    const rows = ps.map(p => {
+      const d = diasHasta(p.fecha);
+      const s = estado(d);
+      const canDel = currentRole === 'supervisor';
+      return `<div class="pallet-row ${s}">
+        <div>
+          <div class="pallet-prod">${p.producto}</div>
+          <div class="pallet-meta">${p.codigo} · ${p.cantidad} u.</div>
+        </div>
+        <div class="pallet-pos">${p.posicion}</div>
+        <div class="pallet-dias ${s}">${labelDias(d)}</div>
+        ${canDel ? `<button class="del-btn" onclick="deletePallet('${p.id}','${p.producto.replace(/'/g,"\\'")}')">×</button>` : '<div></div>'}
+      </div>`;
+    }).join('');
+
+    rubroHtml += `<div class="rubro-section">
+      <div class="rubro-header" onclick="toggleRubro('${safeId}')">
+        <div class="rubro-name">${rubro}</div>
+        <span class="rubro-count">${ps.length} pallets</span>
+        <span class="${pillClass(st)}">${labelPill(minD)}</span>
+        <span class="chevron open" id="chev_${safeId}">▼</span>
+      </div>
+      <div class="pallet-list" id="${safeId}" style="max-height:2000px;">${rows}</div>
+    </div>`;
+  });
+
+  if (!sorted.length) rubroHtml = '<div class="empty-msg">No hay pallets registrados aún.</div>';
+
+  return `
+    ${firebaseMsg}
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">${total}</div></div>
+      <div class="stat-card red"><div class="stat-label">Críticos</div><div class="stat-val">${criticos}</div></div>
+      <div class="stat-card amber"><div class="stat-label">Próximos</div><div class="stat-val">${proximos}</div></div>
+      <div class="stat-card green"><div class="stat-label">OK</div><div class="stat-val">${ok}</div></div>
+    </div>
+    <div class="filters">
+      <input type="text" id="f-search" placeholder="Buscar producto o código..." oninput="filterDash()" />
+      <select id="f-rubro" onchange="filterDash()">
+        <option value="">Todos los rubros</option>
+        ${rubros.map(r=>`<option value="${r}">${r}</option>`).join('')}
+      </select>
+      <select id="f-estado" onchange="filterDash()">
+        <option value="">Todos los estados</option>
+        <option value="red">Crítico</option>
+        <option value="amber">Próximo</option>
+        <option value="green">OK</option>
+      </select>
+    </div>
+    <div id="rubro-list">${rubroHtml}</div>`;
+}
+
+window.filterDash = function() {
+  const search = (document.getElementById('f-search')?.value || '').toLowerCase();
+  const fr = document.getElementById('f-rubro')?.value || '';
+  const fe = document.getElementById('f-estado')?.value || '';
+
+  const filtered = pallets.filter(p => {
+    const d = diasHasta(p.fecha);
+    const s = estado(d);
+    return (!search || p.producto.toLowerCase().includes(search) || p.codigo.includes(search) || p.posicion.toLowerCase().includes(search))
+      && (!fr || p.rubro === fr)
+      && (!fe || s === fe);
+  });
+
+  const rubros = [...new Set(filtered.map(p=>p.rubro))].sort((a,b)=>{
+    const minA = Math.min(...filtered.filter(p=>p.rubro===a).map(p=>diasHasta(p.fecha)));
+    const minB = Math.min(...filtered.filter(p=>p.rubro===b).map(p=>diasHasta(p.fecha)));
+    return minA - minB;
+  });
+
+  let html = '';
+  rubros.forEach(rubro => {
+    const ps = filtered.filter(p=>p.rubro===rubro).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+    const minD = Math.min(...ps.map(p=>diasHasta(p.fecha)));
+    const st = estado(minD);
+    const safeId = 'rf_' + rubro.replace(/[^a-z0-9]/gi,'_');
+    const canDel = currentRole === 'supervisor';
+    const rows = ps.map(p=>{
+      const d=diasHasta(p.fecha); const s=estado(d);
+      return `<div class="pallet-row ${s}">
+        <div><div class="pallet-prod">${p.producto}</div><div class="pallet-meta">${p.codigo} · ${p.cantidad} u.</div></div>
+        <div class="pallet-pos">${p.posicion}</div>
+        <div class="pallet-dias ${s}">${labelDias(d)}</div>
+        ${canDel?`<button class="del-btn" onclick="deletePallet('${p.id}','${p.producto.replace(/'/g,"\\'")}')">×</button>`:'<div></div>'}
+      </div>`;
+    }).join('');
+    html += `<div class="rubro-section">
+      <div class="rubro-header" onclick="toggleRubro('${safeId}')">
+        <div class="rubro-name">${rubro}</div>
+        <span class="rubro-count">${ps.length} pallets</span>
+        <span class="${pillClass(st)}">${labelPill(minD)}</span>
+        <span class="chevron open" id="chev_${safeId}">▼</span>
+      </div>
+      <div class="pallet-list" id="${safeId}" style="max-height:2000px;">${rows}</div>
+    </div>`;
+  });
+  if (!html) html = '<div class="empty-msg">Sin resultados.</div>';
+  document.getElementById('rubro-list').innerHTML = html;
+};
+
+window.toggleRubro = function(id) {
+  const el = document.getElementById(id);
+  const ch = document.getElementById('chev_'+id);
+  if (!el) return;
+  if (el.style.maxHeight !== '0px') {
+    el.style.maxHeight = '0px';
+    if (ch) ch.classList.remove('open');
+  } else {
+    el.style.maxHeight = '2000px';
+    if (ch) ch.classList.add('open');
+  }
+};
+
+window.deletePallet = async function(id, nombre) {
+  if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+  if (firebaseOk && db) {
+    await deleteDoc(doc(db, 'pallets', id));
+    await addDoc(collection(db, 'historial'), { accion:'baja', producto: nombre, ts: Date.now(), rol: currentRole });
+  } else {
+    pallets = pallets.filter(p => p.id !== id);
+    historial.unshift({ id:'h'+Date.now(), accion:'baja', producto: nombre, ts: Date.now(), rol: currentRole });
+    renderCurrentTab();
+  }
+};
+
+// ─── ESCANEAR ─────────────────────────────────────────────────────────────
+function renderEscanear() {
+  return `<div class="scan-section">
+    <div class="scanner-box">
+      <div id="scan-placeholder" class="scan-placeholder" onclick="startScanner()">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9V5a2 2 0 0 1 2-2h4M3 15v4a2 2 0 0 0 2 2h4M21 9V5a2 2 0 0 0-2-2h-4M21 15v4a2 2 0 0 1-2 2h-4"/>
+          <line x1="7" y1="12" x2="17" y2="12"/>
+        </svg>
+        Tocar para activar cámara
+      </div>
+      <video id="video-preview" style="display:none;" autoplay playsinline muted></video>
+      <div class="scan-overlay" id="scan-overlay" style="display:none;">
+        <div class="scan-frame"><div class="scan-line"></div></div>
+      </div>
+    </div>
+
+    <button class="btn-scan" id="btn-toggle-scan" onclick="toggleScanner()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Activar escáner
+    </button>
+
+    <div class="success-flash" id="success-flash">✓ Pallet registrado correctamente</div>
+
+    <div class="form-card">
+      <h3>Registrar pallet</h3>
+      <div class="form-group">
+        <label>Código de barras</label>
+        <input type="text" id="f-codigo" placeholder="Escanear o escribir" />
+      </div>
+      <div class="form-group">
+        <label>Producto</label>
+        <input type="text" id="f-producto" placeholder="Nombre del producto" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rubro (sector)</label>
+          <input type="text" id="f-rubro" placeholder="Ej: 65 — Alfajores" list="rubros-list" />
+          <datalist id="rubros-list">${allRubros().map(r=>`<option value="${r}">`).join('')}</datalist>
+        </div>
+        <div class="form-group">
+          <label>Posición</label>
+          <input type="text" id="f-posicion" placeholder="Ej: 65-A-03" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha de vencimiento</label>
+          <input type="date" id="f-fecha" />
+        </div>
+        <div class="form-group">
+          <label>Cantidad (unidades)</label>
+          <input type="number" id="f-cantidad" placeholder="240" min="1" />
+        </div>
+      </div>
+      <button class="btn-submit" onclick="submitPallet()">Guardar pallet</button>
+    </div>
+  </div>`;
+}
+
+function attachScannerEvents() {
+  const d = new Date();
+  d.setMonth(d.getMonth()+3);
+  const fi = document.getElementById('f-fecha');
+  if (fi) fi.value = d.toISOString().split('T')[0];
+}
+
+window.toggleScanner = function() {
+  if (scannerActive) stopScanner(); else startScanner();
+};
+
+async function startScanner() {
+  if (scannerActive) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    const video = document.getElementById('video-preview');
+    const placeholder = document.getElementById('scan-placeholder');
+    const overlay = document.getElementById('scan-overlay');
+    const btn = document.getElementById('btn-toggle-scan');
+    if (!video) { stream.getTracks().forEach(t=>t.stop()); return; }
+    video.srcObject = stream;
+    video.style.display = 'block';
+    if (placeholder) placeholder.style.display = 'none';
+    if (overlay) overlay.style.display = 'flex';
+    if (btn) { btn.textContent = 'Detener escáner'; btn.classList.add('active'); }
+    scannerActive = true;
+
+    if ('BarcodeDetector' in window) {
+      barcodeReader = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','itf','qr_code'] });
+      scanLoop(video);
+    } else {
+      document.getElementById('f-codigo').placeholder = 'BarcodeDetector no soportado — ingresá el código manual';
+    }
+  } catch(e) {
+    alert('No se pudo acceder a la cámara. Verificá los permisos.');
+  }
+}
+
+async function scanLoop(video) {
+  if (!scannerActive || !barcodeReader) return;
+  try {
+    const codes = await barcodeReader.detect(video);
+    if (codes.length > 0) {
+      const code = codes[0].rawValue;
+      const inp = document.getElementById('f-codigo');
+      if (inp && inp.value !== code) {
+        inp.value = code;
+        inp.classList.add('prefilled');
+        navigator.vibrate && navigator.vibrate(80);
+        document.getElementById('f-producto')?.focus();
+      }
+    }
+  } catch(e) {}
+  if (scannerActive) requestAnimationFrame(() => scanLoop(video));
+}
+
+function stopScanner() {
+  scannerActive = false;
+  barcodeReader = null;
+  const video = document.getElementById('video-preview');
+  if (video && video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  const btn = document.getElementById('btn-toggle-scan');
+  if (btn) { btn.textContent = 'Activar escáner'; btn.classList.remove('active'); }
+  const overlay = document.getElementById('scan-overlay');
+  if (overlay) overlay.style.display = 'none';
+  const placeholder = document.getElementById('scan-placeholder');
+  if (placeholder) placeholder.style.display = 'flex';
+  if (video) video.style.display = 'none';
+}
+
+window.submitPallet = async function() {
+  const codigo   = document.getElementById('f-codigo')?.value.trim() || 'SIN-COD';
+  const producto = document.getElementById('f-producto')?.value.trim();
+  const rubro    = document.getElementById('f-rubro')?.value.trim();
+  const posicion = document.getElementById('f-posicion')?.value.trim();
+  const fecha    = document.getElementById('f-fecha')?.value;
+  const cantidad = parseInt(document.getElementById('f-cantidad')?.value) || 0;
+
+  if (!producto || !rubro || !posicion || !fecha) {
+    alert('Completá producto, rubro, posición y fecha.');
+    return;
+  }
+
+  const pallet = { codigo, producto, rubro, posicion, fecha, cantidad, ts: Date.now(), rol: currentRole };
+
+  if (firebaseOk && db) {
+    await addDoc(collection(db, 'pallets'), pallet);
+    await addDoc(collection(db, 'historial'), { accion:'alta', producto, rubro, posicion, fecha, ts: Date.now(), rol: currentRole });
+  } else {
+    pallets.unshift({ id: 'local_'+Date.now(), ...pallet });
+    historial.unshift({ id:'h'+Date.now(), accion:'alta', producto, ts: Date.now(), rol: currentRole });
+  }
+
+  ['f-codigo','f-producto','f-rubro','f-posicion','f-cantidad'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('prefilled'); }
+  });
+
+  const flash = document.getElementById('success-flash');
+  if (flash) { flash.style.display = 'block'; setTimeout(() => flash.style.display = 'none', 2500); }
+
+  if (!firebaseOk) renderCurrentTab();
+};
+
+// ─── HISTORIAL ────────────────────────────────────────────────────────────
+function renderHistorial() {
+  if (!historial.length) return '<div class="empty-msg">Sin movimientos registrados.</div>';
+  return historial.slice(0, 80).map(h => `
+    <div class="hist-row">
+      <div>
+        <div class="hist-prod">${h.producto || '—'}</div>
+        <div class="hist-meta">${h.rubro||''} ${h.posicion?'· '+h.posicion:''} ${h.rol?'· '+h.rol:''}</div>
+      </div>
+      <div>
+        <div class="hist-time">${formatTs(h.ts)}</div>
+        <div style="text-align:right;margin-top:4px;">
+          <span class="hist-action ${h.accion==='alta'?'hist-add':'hist-del'}">${h.accion==='alta'?'ALTA':'BAJA'}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────
+function renderConfig() {
+  return `
+    <div class="config-card">
+      <h3>Umbrales de alerta</h3>
+      <div class="config-row"><span>Crítico (rojo)</span><span class="config-val">Menos de ${CRITICO} días</span></div>
+      <div class="config-row"><span>Próximo (amarillo)</span><span class="config-val">${CRITICO}–${PROXIMO} días</span></div>
+      <div class="config-row"><span>OK (verde)</span><span class="config-val">Más de ${PROXIMO} días</span></div>
+    </div>
+    <div class="config-card">
+      <h3>Estado del sistema</h3>
+      <div class="config-row"><span>Base de datos</span><span class="config-val">${firebaseOk ? '✓ Firebase conectado' : '⚠ Modo demo (local)'}</span></div>
+      <div class="config-row"><span>Pallets activos</span><span class="config-val">${pallets.length}</span></div>
+      <div class="config-row"><span>Escáner</span><span class="config-val">${'BarcodeDetector' in window ? '✓ Soportado' : '✗ Manual'}</span></div>
+    </div>
+    <div class="config-card">
+      <h3>Contraseñas</h3>
+      <div class="config-row"><span>Operario</span><span class="config-val">galpon2024</span></div>
+      <div class="config-row"><span>Supervisor</span><span class="config-val">super2024</span></div>
+      <div class="config-row"><span>Gerencia</span><span class="config-val">gerencia2024</span></div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-top:0.75rem;">Cambiá las contraseñas en la sección PASSWORDS del HTML</div>
+    </div>`;
+}
+
+// ─── PWA SERVICE WORKER ───────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE='galpon-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+</script>
+</body>
+</html>
